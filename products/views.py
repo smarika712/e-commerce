@@ -12,6 +12,22 @@ def product_list(request):
     return render(request, 'products/list.html', {'products': products})
 
 
+def product_search(request):
+    query = request.GET.get('q', '').strip()
+
+    if query:
+        products = Product.objects.filter(
+            name__icontains=query,
+            is_active=True
+        )
+    else:
+        products = Product.objects.filter(is_active=True)
+
+    return render(request, 'products/list.html', {
+        'products': products,
+        'query': query,
+    })
+
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     return render(request, 'products/details.html', {'product': product})
@@ -53,21 +69,3 @@ def product_delete(request, slug):
         return redirect('product_list')
     return render(request, 'products/confirm_delete.html', {'product': product})
 
-
-def product_search_suggestions(request):
-    query = request.GET.get('q', '').strip()
-    results = []
-
-    if query:
-        products = Product.objects.filter(is_active=True, name__icontains=query)[:8]
-        results = [
-            {
-                'name': p.name,
-                'slug': p.slug,
-                'price': str(p.price),
-                'image': p.image.url if p.image else '',
-            }
-            for p in products
-        ]
-
-    return JsonResponse({'results': results})
