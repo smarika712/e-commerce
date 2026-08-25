@@ -32,107 +32,92 @@
         </div>
 
         <div class="nav-icons d-flex align-items-center">
+            <!-- Search -->
+            <form method="GET" action="{% url 'product_search' %}" class="d-flex me-3">
+                <input
+                    type="text"
+                    name="q"
+                    class="form-control form-control-sm"
+                    placeholder="Search products..."
+                    value="{{ query|default:'' }}"
+                >
+                <button type="submit" class="btn btn-sm btn-dark ms-1">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
 
-    <!-- Search -->
-    <form method="GET" action="{% url 'product_search' %}" class="d-flex me-3">
-        <input
-            type="text"
-            name="q"
-            class="form-control form-control-sm"
-            placeholder="Search products..."
-            value="{{ query|default:'' }}"
-        >
-        <button type="submit" class="btn btn-sm btn-dark ms-1">
-            <i class="bi bi-search"></i>
-        </button>
-    </form>
+            <!-- User -->
+            <a href="{% url 'logout' %}">
+                <i class="bi bi-person"></i>
+            </a>
 
-    <!-- User -->
-    <a href="{% url 'logout' %}">
-        <i class="bi bi-person"></i>
-    </a>
-
-    <!-- Cart -->
-    <a href="{% url 'cart_detail' %}">
-        <i class="bi bi-cart3"></i>
-        <span class="cart-badge">{{ cart|length }}</span>
-    </a>
-
-</div>
+            <!-- Cart -->
+            <a href="{% url 'cart_detail' %}">
+                <i class="bi bi-cart3"></i>
+                <span class="cart-badge">{{ cart|length }}</span>
+            </a>
+        </div>
     </div>
 </nav>
 
+<!-- Scrollable Category Bar -->
+<div class="category-wrapper">
+    <div class="category-bar" id="categoryBar">
+        <a href="#">Skin</a>
+        <a href="#">Hair</a>
+        <a href="#">Lifestyle</a>
+        <a href="#">Fragrances</a>
+        <a href="#">Makeup</a>
+        <a href="#">Kid's Fashion</a>
+        <a href="#">Gadgets & Accessories</a>
+        <a href="#">Home Appliances & Television</a>
+        <a href="#">Women Fashion</a>
+        <a href="#">Mom & Baby</a>
+    </div>
+    <button class="category-next" id="categoryNextBtn" type="button" aria-label="Next categories">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>
 
-<!-- ===== Banner Slider ===== -->
-<div class="banner-section">
-    <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+<!-- Banner Slider -->
+<div class="hero-section">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
 
         <!-- Indicators -->
         <div class="carousel-indicators">
-            <button type="button"
-                    data-bs-target="#bannerCarousel"
-                    data-bs-slide-to="0"
-                    class="active"
-                    aria-current="true"></button>
-
-            <button type="button"
-                    data-bs-target="#bannerCarousel"
-                    data-bs-slide-to="1"></button>
-
-            <button type="button"
-                    data-bs-target="#bannerCarousel"
-                    data-bs-slide-to="2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
         </div>
 
         <!-- Slides -->
         <div class="carousel-inner">
-
-            <!-- Slide 1 -->
             <div class="carousel-item active">
-                <img src="/media/banner/banner1.jpg"
-                     class="d-block w-80 p-50 banner-image"
-                     alt="Banner 1">
+                <img src="/media/banner/banner1.jpg" class="hero-banner" alt="Banner 1">
             </div>
-
-            <!-- Slide 2 -->
             <div class="carousel-item">
-                <img src="/media/banner/banner2.jpg"
-                     class="d-block w-100 banner-image"
-                     alt="Banner 2">
+                <img src="/media/banner/banner2.jpg" class="hero-banner" alt="Banner 2">
             </div>
-
-            <!-- Slide 3 -->
             <div class="carousel-item">
-                <img src="/media/banner/banner3.jpg"
-                     class="d-block w-100 banner-image"
-                     alt="Banner 3">
+                <img src="/media/banner/banner3.jpg" class="hero-banner" alt="Banner 3">
             </div>
-
         </div>
 
-        <!-- Previous -->
-        <button class="carousel-control-prev"
-                type="button"
-                data-bs-target="#bannerCarousel"
-                data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
+        <!-- Arrows -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="hero-arrow"><i class="bi bi-chevron-left"></i></span>
         </button>
-
-        <!-- Next -->
-        <button class="carousel-control-next"
-                type="button"
-                data-bs-target="#bannerCarousel"
-                data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="hero-arrow"><i class="bi bi-chevron-right"></i></span>
         </button>
-
     </div>
 </div>
-<!-- ===== End Banner Slider ===== -->
+
+<!-- Products Section -->
 <div class="container mt-4 mb-5">
     <div class="row g-4">
         {% for product in products %}
-        <div class="col-6 col-md-4 col-lg-3 fade-in-target">
+        <div class="col-6 col-md-4 col-lg-3 fade-in">
             <div class="product-card">
                 {% if product.image %}
                 <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
@@ -166,6 +151,20 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Category Scroll Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const categoryBar = document.getElementById('categoryBar');
+        const nextBtn = document.getElementById('categoryNextBtn');
+
+        if (categoryBar && nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                categoryBar.scrollBy({ left: 200, behavior: 'smooth' });
+            });
+        }
+    });
+</script>
 <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>

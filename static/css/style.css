@@ -290,37 +290,24 @@ body {
 }
 
 
-/* ================================
-   HERO SLIDER
-================================ */
-
 .hero-section {
-    max-width: 1530px;
-    margin: 24px auto 35px;
-    padding: 0 20px;
+    max-width: 1200px;
+    margin: 20px auto 30px;
+    padding: 0 15px;
 }
 
 #heroCarousel {
     position: relative;
-
     overflow: hidden;
-
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .hero-banner {
     width: 100%;
-    height: 440px;
-
+    height: 180px;
     object-fit: cover;
-
     display: block;
 }
-
-
-/* ================================
-   SLIDER ARROWS
-================================ */
 
 .hero-arrow {
     width: 40px;
@@ -349,10 +336,6 @@ body {
 }
 
 
-/* ================================
-   SLIDER DOTS
-================================ */
-
 .carousel-indicators {
     bottom: -18px;
     margin-bottom: 0;
@@ -375,34 +358,3 @@ body {
     opacity: 1;
 }
 
-
-/* ================================
-   MOBILE
-================================ */
-
-@media (max-width: 768px) {
-
-    .category-bar {
-        gap: 25px;
-        padding: 10px 20px;
-    }
-
-    .category-bar a {
-        font-size: 14px;
-    }
-
-    .hero-section {
-        margin-top: 15px;
-        padding: 0 10px;
-    }
-
-    .hero-banner {
-        height: 230px;
-    }
-
-    .hero-arrow {
-        width: 32px;
-        height: 32px;
-        font-size: 17px;
-    }
-}
