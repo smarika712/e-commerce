@@ -1,19 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from accounts.decorators import admin_required
 from .models import Product, Category
 from .forms import ProductForm
 
 
-def _get_cart_count(request):
-    """Helper function to calculate total items in the cart."""
-    cart = request.session.get('cart', {})
-    return sum(
-        item['quantity'] if isinstance(item, dict) else item
-        for item in cart.values()
-    )
+def _get_wishlist_ids(request):
+    """Helper function to get the list of product ids in the session wishlist."""
+    return request.session.get('wishlist', [])
 
 
 def wishlist_add(request, product_id):
@@ -28,6 +23,7 @@ def wishlist_add(request, product_id):
         messages.success(request, 'Added to wishlist!')
 
     request.session['wishlist'] = wishlist
+    request.session.modified = True
     return redirect(request.META.get('HTTP_REFERER', 'product_list'))
 
 
@@ -42,11 +38,14 @@ def product_list(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
 
+    wishlist_ids = _get_wishlist_ids(request)
+
     return render(request, 'products/list.html', {
         'products': products,
         'categories': categories,
         'category': category,
-        'cart_count': _get_cart_count(request),
+        'wishlist_ids': wishlist_ids,
+        'wishlist_count': len(wishlist_ids),
     })
 
 
@@ -62,20 +61,25 @@ def product_search(request):
         products = Product.objects.filter(is_active=True)
 
     categories = Category.objects.all()
+    wishlist_ids = _get_wishlist_ids(request)
 
     return render(request, 'products/list.html', {
         'products': products,
         'categories': categories,
         'query': query,
-        'cart_count': _get_cart_count(request),
+        'wishlist_ids': wishlist_ids,
+        'wishlist_count': len(wishlist_ids),
     })
 
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
+    wishlist_ids = _get_wishlist_ids(request)
+
     return render(request, 'products/details.html', {
         'product': product,
-        'cart_count': _get_cart_count(request),
+        'wishlist_ids': wishlist_ids,
+        'wishlist_count': len(wishlist_ids),
     })
 
 

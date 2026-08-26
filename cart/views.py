@@ -90,6 +90,13 @@ def cart_add(request, slug):
         slug=slug
     )
 
+    try:
+        qty_to_add = int(request.POST.get('quantity', 1))
+    except (TypeError, ValueError):
+        qty_to_add = 1
+
+    qty_to_add = max(qty_to_add, 1)
+
     cart = request.session.get('cart', {})
 
     product_id = str(product.id)
@@ -97,16 +104,16 @@ def cart_add(request, slug):
     if product_id in cart:
 
         if isinstance(cart[product_id], dict):
-            cart[product_id]['quantity'] += 1
+            cart[product_id]['quantity'] += qty_to_add
         else:
             # Convert old format to new format
             cart[product_id] = {
-                'quantity': int(cart[product_id]) + 1
+                'quantity': int(cart[product_id]) + qty_to_add
             }
 
     else:
         cart[product_id] = {
-            'quantity': 1
+            'quantity': qty_to_add
         }
 
     request.session['cart'] = cart
