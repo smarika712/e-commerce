@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from accounts.decorators import admin_required
 from .models import Product, Category
 from .forms import ProductForm
 
@@ -10,32 +11,9 @@ def _get_cart_count(request):
     """Helper function to calculate total items in the cart."""
     cart = request.session.get('cart', {})
     return sum(
-        item['quantity'] if isinstance(item, dict) else item 
+        item['quantity'] if isinstance(item, dict) else item
         for item in cart.values()
     )
-
-
-def cart_add(request, slug):
-    cart = request.session.get('cart', {})
-    product = get_object_or_404(Product, slug=slug)
-    product_id_str = str(product.id)
-
-    if product_id_str in cart:
-        if isinstance(cart[product_id_str], dict):
-            cart[product_id_str]['quantity'] += 1
-        else:
-            cart[product_id_str] = {'quantity': cart[product_id_str] + 1, 'price': str(product.price)}
-    else:
-        cart[product_id_str] = {
-            'quantity': 1,
-            'price': str(product.price),
-        }
-
-    request.session['cart'] = cart
-    request.session.modified = True
-    
-    messages.success(request, f"{product.name} added to cart!")
-    return redirect(request.META.get('HTTP_REFERER', 'product_list'))
 
 
 def wishlist_add(request, product_id):
@@ -55,13 +33,19 @@ def wishlist_add(request, product_id):
 
 # ---------- Product Views ----------
 
-def product_list(request):
-    products = Product.objects.all()
+def product_list(request, category_slug=None):
+    products = Product.objects.filter(is_active=True)
     categories = Category.objects.all()
+
+    category = None
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=category)
 
     return render(request, 'products/list.html', {
         'products': products,
         'categories': categories,
+        'category': category,
         'cart_count': _get_cart_count(request),
     })
 
@@ -95,7 +79,7 @@ def product_detail(request, slug):
     })
 
 
-@login_required
+@admin_required
 def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
@@ -108,7 +92,7 @@ def product_create(request):
     return render(request, 'products/form.html', {'form': form, 'title': 'Add Product'})
 
 
-@login_required
+@admin_required
 def product_update(request, slug):
     product = get_object_or_404(Product, slug=slug)
     if request.method == 'POST':
@@ -122,7 +106,7 @@ def product_update(request, slug):
     return render(request, 'products/form.html', {'form': form, 'title': 'Edit Product'})
 
 
-@login_required
+@admin_required
 def product_delete(request, slug):
     product = get_object_or_404(Product, slug=slug)
     if request.method == 'POST':
