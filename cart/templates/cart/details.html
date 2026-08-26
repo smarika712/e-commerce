@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Cart | Bazaario</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
@@ -18,61 +19,120 @@
     </div>
 </nav>
 
-<div class="container mt-4 mb-5">
-    <h2 class="mb-4">Your Cart</h2>
+<div class="container cart-page mt-4 mb-5">
+    <div class="row g-4">
 
-    {% if items %}
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td class="d-flex align-items-center gap-2">
+        <!-- ===== LEFT: Cart items ===== -->
+        <div class="col-lg-8">
+            <div class="cart-panel">
+                <h2 class="cart-title">Your Bazaario Shopping Cart</h2>
+
+                {% if cart_items %}
+                <div class="select-all-row">
+                    <label class="cart-checkbox">
+                        <input type="checkbox" id="selectAll" checked>
+                        <span class="checkmark"></span>
+                        Select All
+                    </label>
+                </div>
+
+                {% for item in cart_items %}
+                <div class="cart-row">
+                    <label class="cart-checkbox">
+                        <input type="checkbox" class="item-checkbox" checked>
+                        <span class="checkmark"></span>
+                    </label>
+
                     {% if item.product.image %}
-                    <img src="{{ item.product.image.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
+                    <img src="{{ item.product.image.url }}" class="cart-item-img" alt="{{ item.product.name }}">
+                    {% else %}
+                    <div class="cart-item-img no-image-sm">No image</div>
                     {% endif %}
-                    {{ item.product.name }}
-                </td>
-                <td>Rs. {{ item.price }}</td>
-                <td>
-                    <form method="post" action="{% url 'cart_update' item.product.id %}" class="d-flex align-items-center gap-2">
-                        {% csrf_token %}
-                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width:70px;">
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
-                    </form>
-                </td>
-                <td>Rs. {{ item.total_price }}</td>
-                <td>
-                    <a href="{% url 'cart_remove' item.product.id %}" class="btn btn-sm btn-danger">
-                        <i class="bi bi-trash"></i>
+
+                    <div class="cart-item-info">
+                        <p class="cart-item-name">{{ item.product.name }}</p>
+
+                        <div class="qty-stepper">
+                            <a href="{% url 'cart_remove' item.product.slug %}" class="qty-btn">−</a>
+                            <span class="qty-value">{{ item.quantity }}</span>
+                            <a href="{% url 'cart_add' item.product.slug %}" class="qty-btn">+</a>
+                        </div>
+                    </div>
+
+                    <div class="cart-item-price">
+                        {% if item.discount_pct > 0 %}
+                        <span class="price-original">Rs. {{ item.original_subtotal|floatformat:0 }}</span>
+                        <span class="price-discount-pct">-{{ item.discount_pct }}%</span>
+                        {% endif %}
+                        <span class="price-final">Rs. {{ item.subtotal|floatformat:0 }}</span>
+                        <span class="price-tax-note">(Inclusive of all Taxes)</span>
+                    </div>
+
+                    <a href="{% url 'cart_remove' item.product.slug %}?all=1" class="remove-x" title="Remove item">
+                        <i class="bi bi-x-lg"></i>
                     </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+                {% endfor %}
 
-    <div class="text-end">
-        <h4>Total: Rs. {{ total }}</h4>
-        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Continue Shopping</a>
-        <button class="btn btn-success">Checkout</button>
-    </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>Your cart is empty.</p>
+                    <a href="{% url 'product_list' %}" class="btn-brand">Start Shopping</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
-    {% else %}
-    <div class="empty-state">
-        <p>Your cart is empty.</p>
-        <a href="{% url 'product_list' %}" class="btn-brand">Start Shopping</a>
+        <!-- ===== RIGHT: Order summary ===== -->
+        {% if cart_items %}
+        <div class="col-lg-4">
+            <div class="summary-panel">
+                <h4 class="summary-title">Order Summary</h4>
+                <hr>
+
+                <div class="summary-row">
+                    <span>Total</span>
+                    <span>Rs. {{ total_original|floatformat:2 }}</span>
+                </div>
+
+                {% if total_discount > 0 %}
+                <div class="summary-row discount-row">
+                    <span>Discount</span>
+                    <span>- Rs. {{ total_discount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+
+                <div class="delivery-note">
+                    <i class="bi bi-info-circle"></i>
+                    Delivery charge may vary depending on the shipping address of your order.
+                </div>
+                <p class="tax-note-right">(Inclusive of all Taxes)</p>
+
+                <hr>
+
+                <div class="summary-row grand-total-row">
+                    <span>Grand Total ({{ total_count }} item{{ total_count|pluralize }})</span>
+                    <span class="grand-total-amount">Rs. {{ grand_total|floatformat:2 }}</span>
+                </div>
+
+                <button class="checkout-btn">Checkout</button>
+
+                <a href="{% url 'product_list' %}" class="continue-link">Continue Shopping</a>
+            </div>
+        </div>
+        {% endif %}
+
     </div>
-    {% endif %}
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = selectAll.checked);
+        });
+    }
+</script>
 </body>
 </html>

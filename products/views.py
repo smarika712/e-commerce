@@ -2,14 +2,68 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Product
+from .models import Product, Category
 from .forms import ProductForm
 
 
+def _get_cart_count(request):
+    """Helper function to calculate total items in the cart."""
+    cart = request.session.get('cart', {})
+    return sum(
+        item['quantity'] if isinstance(item, dict) else item 
+        for item in cart.values()
+    )
+
+
+def cart_add(request, slug):
+    cart = request.session.get('cart', {})
+    product = get_object_or_404(Product, slug=slug)
+    product_id_str = str(product.id)
+
+    if product_id_str in cart:
+        if isinstance(cart[product_id_str], dict):
+            cart[product_id_str]['quantity'] += 1
+        else:
+            cart[product_id_str] = {'quantity': cart[product_id_str] + 1, 'price': str(product.price)}
+    else:
+        cart[product_id_str] = {
+            'quantity': 1,
+            'price': str(product.price),
+        }
+
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    messages.success(request, f"{product.name} added to cart!")
+    return redirect(request.META.get('HTTP_REFERER', 'product_list'))
+
+
+def wishlist_add(request, product_id):
+    """Toggles a product inside the session-based wishlist."""
+    wishlist = request.session.get('wishlist', [])
+
+    if product_id in wishlist:
+        wishlist.remove(product_id)
+        messages.info(request, 'Removed from wishlist.')
+    else:
+        wishlist.append(product_id)
+        messages.success(request, 'Added to wishlist!')
+
+    request.session['wishlist'] = wishlist
+    return redirect(request.META.get('HTTP_REFERER', 'product_list'))
+
+
+# ---------- Product Views ----------
 
 def product_list(request):
-    products = Product.objects.filter(is_active=True)
-    return render(request, 'products/list.html', {'products': products})
+    products = Product.objects.all()
+    categories = Category.objects.all()
+
+    return render(request, 'products/list.html', {
+        'products': products,
+        'categories': categories,
+        'cart_count': _get_cart_count(request),
+    })
 
 
 def product_search(request):
@@ -23,14 +77,22 @@ def product_search(request):
     else:
         products = Product.objects.filter(is_active=True)
 
+    categories = Category.objects.all()
+
     return render(request, 'products/list.html', {
         'products': products,
+        'categories': categories,
         'query': query,
+        'cart_count': _get_cart_count(request),
     })
+
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    return render(request, 'products/details.html', {'product': product})
+    return render(request, 'products/details.html', {
+        'product': product,
+        'cart_count': _get_cart_count(request),
+    })
 
 
 @login_required
@@ -68,4 +130,3 @@ def product_delete(request, slug):
         messages.success(request, 'Product deleted.')
         return redirect('product_list')
     return render(request, 'products/confirm_delete.html', {'product': product})
-
