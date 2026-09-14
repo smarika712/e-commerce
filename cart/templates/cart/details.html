@@ -115,7 +115,7 @@
                     <span class="grand-total-amount">Rs. {{ grand_total|floatformat:2 }}</span>
                 </div>
 
-                <button class="checkout-btn">Checkout</button>
+                                <a href="{% url 'checkout' %}" class="checkout-btn text-center d-block text-decoration-none">Checkout</a>
 
                 <a href="{% url 'product_list' %}" class="continue-link">Continue Shopping</a>
             </div>

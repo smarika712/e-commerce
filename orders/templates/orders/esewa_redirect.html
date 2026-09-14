@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Redirecting to eSewa...</title>
+</head>
+<body>
+    <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+        <p>Redirecting you to eSewa for payment...</p>
+    </div>
+
+    <form id="esewaForm" action="{{ esewa_form_url }}" method="POST">
+        <input type="hidden" name="amount" value="{{ amount }}" required>
+        <input type="hidden" name="tax_amount" value="{{ tax_amount }}" required>
+        <input type="hidden" name="total_amount" value="{{ total_amount }}" required>
+        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}" required>
+        <input type="hidden" name="product_code" value="{{ product_code }}" required>
+        <input type="hidden" name="product_service_charge" value="{{ product_service_charge }}" required>
+        <input type="hidden" name="product_delivery_charge" value="{{ product_delivery_charge }}" required>
+        <input type="hidden" name="success_url" value="{{ success_url }}" required>
+        <input type="hidden" name="failure_url" value="{{ failure_url }}" required>
+        <input type="hidden" name="signed_field_names" value="{{ signed_field_names }}" required>
+        <input type="hidden" name="signature" value="{{ signature }}" required>
+    </form>
+
+    <script>
+        document.getElementById('esewaForm').submit();
+    </script>
+</body>
+</html>
