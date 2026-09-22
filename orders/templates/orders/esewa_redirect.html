@@ -3,25 +3,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Redirecting to eSewa...</title>
+    <title>Redirecting to eSewa... | Bazaario</title>
 </head>
 <body>
-    <div style="text-align:center; margin-top:100px; font-family:sans-serif;">
+    <div style="text-align:center; margin-top:100px; font-family:'Segoe UI', system-ui, sans-serif;">
         <p>Redirecting you to eSewa for payment...</p>
+        <p style="color:#999; font-size:0.9rem;">Please wait, do not close this page.</p>
     </div>
 
     <form id="esewaForm" action="{{ esewa_form_url }}" method="POST">
-        <input type="hidden" name="amount" value="{{ amount }}" required>
-        <input type="hidden" name="tax_amount" value="{{ tax_amount }}" required>
-        <input type="hidden" name="total_amount" value="{{ total_amount }}" required>
-        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}" required>
-        <input type="hidden" name="product_code" value="{{ product_code }}" required>
-        <input type="hidden" name="product_service_charge" value="{{ product_service_charge }}" required>
-        <input type="hidden" name="product_delivery_charge" value="{{ product_delivery_charge }}" required>
-        <input type="hidden" name="success_url" value="{{ success_url }}" required>
-        <input type="hidden" name="failure_url" value="{{ failure_url }}" required>
-        <input type="hidden" name="signed_field_names" value="{{ signed_field_names }}" required>
-        <input type="hidden" name="signature" value="{{ signature }}" required>
+        <input type="hidden" name="amount" value="{{ amount }}">
+        <input type="hidden" name="tax_amount" value="{{ tax_amount }}">
+        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}">
+        <input type="hidden" name="product_code" value="{{ product_code }}">
+        <input type="hidden" name="product_service_charge" value="{{ product_service_charge }}">
+        <input type="hidden" name="product_delivery_charge" value="{{ product_delivery_charge }}">
+        <input type="hidden" name="success_url" value="{{ success_url }}">
+        <input type="hidden" name="failure_url" value="{{ failure_url }}">
+        <input type="hidden" name="signed_field_names" value="{{ signed_field_names }}">
+        <input type="hidden" name="signature" value="{{ signature }}">
     </form>
 
     <script>

@@ -6,35 +6,27 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from products.models import Product
 from .models import Order, OrderItem
-from .esewa import generate_esewa_signature, verify_esewa_signature, ESEWA_FORM_URL, ESEWA_PRODUCT_CODE
+from .esewa import generate_esewa_signature, verify_esewa_signature
 
 
 def _get_cart_items(request):
     cart = request.session.get('cart', {})
-
     product_ids = [int(key) for key in cart.keys() if str(key).isdigit()]
     products = Product.objects.filter(id__in=product_ids)
 
     items = []
     total = 0
-
     for product in products:
         item_data = cart.get(str(product.id), 1)
         quantity = item_data.get('quantity', 1) if isinstance(item_data, dict) else item_data
         quantity = max(int(quantity), 1)
-
         price = float(product.price or 0)
         subtotal = price * quantity
         total += subtotal
-
-        items.append({
-            'product': product,
-            'quantity': quantity,
-            'price': price,
-            'subtotal': subtotal,
-        })
+        items.append({'product': product, 'quantity': quantity, 'price': price, 'subtotal': subtotal})
 
     return items, round(total, 2)
 
@@ -56,10 +48,7 @@ def checkout(request):
 
         if not all([full_name, phone, address, city, payment_method]):
             messages.error(request, 'Please fill in all fields.')
-            return render(request, 'orders/checkout.html', {
-                'cart_items': cart_items,
-                'total': total,
-            })
+            return render(request, 'orders/checkout.html', {'cart_items': cart_items, 'total': total})
 
         order = Order.objects.create(
             user=request.user,
@@ -92,18 +81,15 @@ def checkout(request):
         order.esewa_transaction_uuid = transaction_uuid
         order.save()
 
-        signature = generate_esewa_signature(
-            total_amount=total,
-            transaction_uuid=transaction_uuid,
-        )
+        signature = generate_esewa_signature(total_amount=total, transaction_uuid=transaction_uuid)
 
         esewa_context = {
-            'esewa_form_url': ESEWA_FORM_URL,
+            'esewa_form_url': settings.ESEWA_PAYMENT_URL,
             'amount': total,
             'tax_amount': 0,
             'total_amount': total,
             'transaction_uuid': transaction_uuid,
-            'product_code': ESEWA_PRODUCT_CODE,
+            'product_code': settings.ESEWA_PRODUCT_CODE,
             'product_service_charge': 0,
             'product_delivery_charge': 0,
             'success_url': request.build_absolute_uri('/orders/esewa/verify/'),
@@ -111,13 +97,9 @@ def checkout(request):
             'signed_field_names': 'total_amount,transaction_uuid,product_code',
             'signature': signature,
         }
-
         return render(request, 'orders/esewa_redirect.html', esewa_context)
 
-    return render(request, 'orders/checkout.html', {
-        'cart_items': cart_items,
-        'total': total,
-    })
+    return render(request, 'orders/checkout.html', {'cart_items': cart_items, 'total': total})
 
 
 @login_required
@@ -128,9 +110,7 @@ def order_success(request, order_id):
 
 @csrf_exempt
 def esewa_verify(request):
-    """eSewa redirects here (GET) after payment with a base64-encoded 'data' param."""
     encoded_data = request.GET.get('data')
-
     if not encoded_data:
         messages.error(request, 'Invalid payment response.')
         return redirect('cart_detail')
@@ -148,16 +128,14 @@ def esewa_verify(request):
 
     transaction_uuid = data.get('transaction_uuid')
     status = data.get('status')
-
     order = get_object_or_404(Order, esewa_transaction_uuid=transaction_uuid)
 
     if status == 'COMPLETE':
         order.status = Order.STATUS_PAID
+        order.esewa_ref_id = data.get('transaction_code', '')
         order.save()
-
         request.session['cart'] = {}
         request.session.modified = True
-
         messages.success(request, 'Payment successful!')
         return redirect('order_success', order_id=order.order_id)
     else:
