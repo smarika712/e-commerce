@@ -503,14 +503,6 @@ img { max-width: 100%; height: auto; }
     min-width: 600px;
 }
 
-/* ================================
-   CART PAGE
-   (base styling — turns out these classes weren't styled anywhere
-   else after all, which is why the product photo was rendering at
-   full raw size with no thumbnail box)
-================================ */
-
-.cart-page { }
 
 .cart-panel {
     background: #fff;
