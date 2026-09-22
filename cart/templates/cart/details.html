@@ -53,9 +53,9 @@
                         <p class="cart-item-name">{{ item.product.name }}</p>
 
                         <div class="qty-stepper">
-                           <a href="{% url 'cart_remove' item.product.id %}" class="qty-btn">−</a>
+                           <a href="{% url 'cart_remove' item.product.slug %}" class="qty-btn">−</a>
                            <span class="qty-value">{{ item.quantity }}</span>
-                           <a href="{% url 'cart_add' item.product.id %}" class="qty-btn">+</a>
+                           <a href="{% url 'cart_add' item.product.slug %}" class="qty-btn">+</a>
                         </div>
                     </div>
 
@@ -68,7 +68,7 @@
                         <span class="price-tax-note">(Inclusive of all Taxes)</span>
                     </div>
 
-                    <a href="{% url 'cart_remove' item.product.id %}?all=1" class="remove-x" title="Remove item">
+                    <a href="{% url 'cart_remove' item.product.slug %}?all=1" class="remove-x" title="Remove item">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
