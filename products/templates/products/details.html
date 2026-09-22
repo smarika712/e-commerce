@@ -33,45 +33,65 @@
             {% endif %}
         </div>
 
-        <div class="nav-icons d-flex align-items-center">
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="logout-btn" title="Logout, {{ user.username }}">
-                    <i class="bi bi-box-arrow-right"></i>
-                </button>
-            </form>
-            {% else %}
-            <a href="{% url 'login' %}" title="Login"><i class="bi bi-person"></i></a>
-            {% endif %}
+        <div class="d-flex align-items-center">
+            <div class="nav-icons d-flex align-items-center">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn" title="Logout, {{ user.username }}">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" title="Login"><i class="bi bi-person"></i></a>
+                {% endif %}
 
-            <a href="{% url 'wishlist_detail' %}" title="Wishlist">
-                <i class="bi bi-heart{% if product.id in wishlist_ids %}-fill{% endif %}" style="{% if product.id in wishlist_ids %}color:#ec4899;{% endif %}"></i>
-                <span class="cart-badge">{{ wishlist_count|default:0 }}</span>
-            </a>
+                <a href="{% url 'wishlist_detail' %}" title="Wishlist">
+                    <i class="bi bi-heart{% if product.id in wishlist_ids %}-fill{% endif %}" style="{% if product.id in wishlist_ids %}color:#ec4899;{% endif %}"></i>
+                    <span class="cart-badge">{{ wishlist_count|default:0 }}</span>
+                </a>
 
-            <a href="{% url 'cart_detail' %}" title="Cart">
-                <i class="bi bi-cart3"></i>
-                <span class="cart-badge">{{ cart_count|default:0 }}</span>
-            </a>
+                <a href="{% url 'cart_detail' %}" title="Cart">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-badge">{{ cart_count|default:0 }}</span>
+                </a>
+            </div>
+
+            <button class="navbar-toggler d-md-none ms-2" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navLinksCollapse"
+                    aria-controls="navLinksCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="collapse d-md-none" id="navLinksCollapse">
+        <div class="container">
+            <div class="mobile-nav-links">
+                <a href="{% url 'product_list' %}">Home</a>
+                <a href="{% url 'product_list' %}">Shop</a>
+                {% if user.is_staff %}
+                <a href="{% url 'product_create' %}">Add Product</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </nav>
 
 <div class="container mt-4 mb-5">
-    <div class="row g-5">
+    <div class="row g-4 g-lg-5">
 
         <!-- Product Image -->
-        <div class="col-md-5">
+        <div class="col-12 col-md-5">
             {% if product.image %}
             <img src="{{ product.image.url }}" class="detail-image" alt="{{ product.name }}">
             {% else %}
-            <div class="no-image" style="border-radius:14px; height:400px;">No image</div>
+            <div class="detail-no-image">No image</div>
             {% endif %}
         </div>
 
         <!-- Product Info -->
-        <div class="col-md-7">
+        <div class="col-12 col-md-7">
             <div class="text-uppercase text-muted fw-bold mb-2" style="font-size:0.8rem;">
                 {{ product.category.name|default:"General" }}
             </div>
@@ -91,7 +111,7 @@
                 <span class="text-muted" style="font-size:0.9rem;">{{ product.rating|default:"5.0" }}/5</span>
             </div>
 
-            <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <h3 class="price-tag mb-0">Rs. {{ product.price }}</h3>
                 {% if product.old_price and product.old_price > product.price %}
                 <span class="text-muted text-decoration-line-through">Rs. {{ product.old_price }}</span>
@@ -108,7 +128,7 @@
             <p class="text-muted mt-3">{{ product.description }}</p>
 
             <!-- Quantity Selector -->
-            <div class="d-flex align-items-center gap-3 mt-4 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-3 mt-4 mb-3">
                 <span class="fw-semibold">Quantity</span>
                 <div class="qty-stepper">
                     <button type="button" class="qty-btn" id="qtyMinus">−</button>

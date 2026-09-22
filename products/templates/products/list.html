@@ -29,13 +29,65 @@
             <a href="{% url 'product_list' %}">Home</a>
             <a href="{% url 'product_list' %}">Shop</a>
             {% if user.is_staff %}
-            <a href="{% url 'product_create' %}">Add Product</a>
+            <a href="/admin/products/product/add/">Add Product</a>
             {% endif %}
         </div>
 
-        <div class="nav-icons d-flex align-items-center">
-            <!-- Search -->
-            <form method="GET" action="{% url 'product_search' %}" class="d-flex me-3">
+        <div class="d-flex align-items-center">
+            <div class="nav-icons d-flex align-items-center">
+                <!-- Search: hidden below the sm breakpoint, moves into the mobile menu instead -->
+                <form method="GET" action="{% url 'product_search' %}" class="d-none d-sm-flex me-3 navbar-search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control form-control-sm"
+                        placeholder="Search products..."
+                        value="{{ query|default:'' }}"
+                    >
+                    <button type="submit" class="btn btn-sm btn-dark ms-1">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+
+                <!-- User -->
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn" title="Logout, {{ user.username }}">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" title="Login"><i class="bi bi-person"></i></a>
+                {% endif %}
+
+                <!-- Wishlist -->
+                <a href="{% url 'wishlist_detail' %}" title="Wishlist">
+                    <i class="bi bi-heart-fill" style="color:#dc2626"></i>
+                    <span class="cart-badge">{{ wishlist_count|default:0 }}</span>
+                </a>
+
+                <!-- Cart -->
+                <a href="{% url 'cart_detail' %}" class="position-relative text-dark me-3">
+                    <i class="bi bi-cart fs-4"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        {{ cart_count|default:0 }}
+                    </span>
+                </a>
+            </div>
+
+            <button class="navbar-toggler d-md-none ms-2" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navLinksCollapse"
+                    aria-controls="navLinksCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile menu: nav links + the search bar that's hidden above on small screens -->
+    <div class="collapse d-md-none" id="navLinksCollapse">
+        <div class="container">
+            <form method="GET" action="{% url 'product_search' %}" class="d-flex d-sm-none mt-2 mb-1">
                 <input
                     type="text"
                     name="q"
@@ -47,32 +99,13 @@
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-
-            <!-- User -->
-            {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="d-inline">
-    {% csrf_token %}
-    <button type="submit" class="logout-btn" title="Logout, {{ user.username }}">
-        <i class="bi bi-box-arrow-right"></i>
-    </button>
-</form>
-            {% else %}
-            <a href="{% url 'login' %}" title="Login"><i class="bi bi-person"></i></a>
-            {% endif %}
-
-             <!-- Wishlist -->
-            <a href="{% url 'wishlist_detail' %}" title="Wishlist">
-                <i class="bi bi-heart-fill" style="color:#dc2626"></i>
-                <span class="cart-badge">{{ wishlist_count|default:0 }}</span>
-            </a>
-
-            <!-- Cart -->
-            <a href="{% url 'cart_detail' %}" class="position-relative text-dark me-3">
-                <i class="bi bi-cart fs-4"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {{ cart_count|default:0 }}
-                </span>
-            </a>
+            <div class="mobile-nav-links">
+                <a href="{% url 'product_list' %}">Home</a>
+                <a href="{% url 'product_list' %}">Shop</a>
+                {% if user.is_staff %}
+                <a href="/admin/products/product/add/">Add Product</a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </nav>
@@ -147,7 +180,7 @@
                 </span>
 
                 <!-- Product Image Wrapper -->
-                <div class="position-relative bg-light w-100 overflow-hidden" style="height: 280px;">
+                <div class="position-relative bg-light w-100 overflow-hidden product-thumb">
                     {% if product.image %}
                         <img src="{{ product.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ product.name }}">
                     {% else %}
@@ -225,7 +258,7 @@
         <div class="col-12">
             <div class="text-center py-5">
                 <p class="text-muted">No products available yet.</p>
-                <a href="{% url 'product_create' %}" class="btn btn-primary">Add your first product</a>
+                <a href="/admin/products/product/add/" class="btn btn-primary">Add your first product</a>
             </div>
         </div>
         {% endfor %}
