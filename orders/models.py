@@ -19,11 +19,24 @@ class Order(models.Model):
 
     PAYMENT_COD = 'cod'
     PAYMENT_ESEWA = 'esewa'
+    PAYMENT_KHALTI = 'khalti'
 
     PAYMENT_CHOICES = [
         (PAYMENT_COD, 'Cash on Delivery'),
         (PAYMENT_ESEWA, 'eSewa'),
+        (PAYMENT_KHALTI, 'Khalti')
     ]
+    khalti_pidx = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    khalti_transaction_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
 
     order_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)

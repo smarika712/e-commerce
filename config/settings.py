@@ -150,3 +150,14 @@ LOGOUT_REDIRECT_URL = 'product_list'
 ESEWA_PRODUCT_CODE = config('ESEWA_PRODUCT_CODE', default='EPAYTEST')
 ESEWA_SECRET_KEY = config('ESEWA_SECRET_KEY', default='8gBm/:&EnhH.1/q')
 ESEWA_PAYMENT_URL = config('ESEWA_PAYMENT_URL', default='https://rc-epay.esewa.com.np/api/epay/main/v2/form')
+
+# khalti
+KHALTI_SECRET_KEY = config('KHALTI_SECRET_KEY')
+KHALTI_PAYMENT_URL = config(
+    'KHALTI_PAYMENT_URL',
+    default='https://dev.khalti.com/api/v2/epayment/initiate/'
+)
+KHALTI_LOOKUP_URL = config(
+    'KHALTI_LOOKUP_URL',
+    default='https://dev.khalti.com/api/v2/epayment/lookup/'
+)
